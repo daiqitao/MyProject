@@ -1,63 +1,15 @@
-import os, random, time, threading, tkinter, sys, smtplib
-import random
-import time
-import threading
-import smtplib
-import os.path
-import flask
-from datetime import datetime
-from flask import Flask, request, jsonify, redirect, send_file
+from flask import Flask, make_response
 import json
-from tkinter import Tk, Entry, Button
 from flask_cors import CORS
-from flask import Flask
+import random
 
-app = flask.Flask(__name__)
-
-def page4():
-    return send_file("404/index.html")
-
-def create_window():
-    global w
-    w = Tk()
-    w.title("Flask GUI")
-    e = Entry(w, font=["Consolas", 10, ""])
-    e.pack()
-    b1 = Button(
-        w,
-        text="Enter CMD",
-        command=lambda: os.system(e.get()),
-        font=["Consolas", 10, ""],
-    )
-    b2 = Button(
-        w, text="Enter CPY", command=lambda: exec(e.get()), font=["Consolas", 10, ""]
-    )
-    b1.pack()
-    b2.pack()
-    w.mainloop()
-
-
-@app.route("/")
-def nonepage():
-    return flask.redirect("/index.html")
-
-
-@app.route("/<path:page>")
-def mainpage(page):
-    if os.path.isdir(page):
-        page = page
-        page += "/index.html"
-    try:
-        return flask.send_file(page)
-    except FileNotFoundError:
-        return page4()
-    
-
+app = Flask(__name__)
+CORS(app)
 
 @app.route("/api/quote")
 def generate_random_quote():
     quotes = [
-        "欢迎来到银河编程 Welcome to GalaxyCode",
+        "人生就像心电图，如果一帆风顺，你就挂了。",
         "山重水复疑无路，make后面不加to",
         "想致富，先撸树。",
         "要是追你那么容易，那我爱你干嘛",
@@ -208,36 +160,8 @@ def generate_random_quote():
     random_quote = random.choice(quotes)
     
     data = {"quote": random_quote}
-    return json.dumps(data)
+    response = make_response(json.dumps(data))
+    response.headers['Access-Control-Allow-Origin'] = '*'
+    return response
 
-
-
-def onserver():
-    global w
-    time.sleep(0.5)
-    os.system("cls")
-    print("欢迎使用v1.0网站服务端。")
-    print("服务端已准备就绪！\n开始记录日志：\n")
-
-    w = tkinter.Tk()
-    w.title("")
-    e = tkinter.Entry(w, font=["Consolas", 10, ""])
-    e.pack()
-    b1 = tkinter.Button(
-        w,
-        text="Enter CMD",
-        command=lambda: os.system(e.get()),
-        font=["Consolas", 10, ""],
-    )
-    b2 = tkinter.Button(
-        w, text="Enter CPY", command=lambda: exec(e.get()), font=["Consolas", 10, ""]
-    )
-    b1.pack()
-    b2.pack()
-    w.mainloop()
-
-
-threading.Thread(target=onserver).start()
-app.run(host="0.0.0.0", port=5000)
-print("服务端已停止运行。\n")
-w.destroy()
+app.run("0.0.0.0", 8080)
